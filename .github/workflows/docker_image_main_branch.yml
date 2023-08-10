@@ -29,11 +29,6 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'failure' }}
     steps:
       - run: echo 'The triggering workflow failed'
-  push-slack:
-    needs: [on-success, on-failure]
-    runs-on: self-hosted
-    if: ${{ always() }}
-    steps:
       - name: Publish slack message
         uses: ./.github/action_templates/slack
         with:
