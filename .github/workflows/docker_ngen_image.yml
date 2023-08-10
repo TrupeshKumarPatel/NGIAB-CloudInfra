@@ -31,6 +31,7 @@ jobs:
       - run: echo 'The triggering workflow failed'
   push-slack:
     runs-on: self-hosted
+    if: ${{ always() }}
     steps:
       - name: Publish slack message
         uses: ./.github/action_templates/slack
