@@ -1,13 +1,9 @@
 name: Publish slack message
 on:
   push:
-    branches: [ main ]
+    branches: [ slack ]
     paths:
       - docker/**
-  workflow_run:
-    workflows: [Build and push final image]
-    types:
-      - completed
   workflow_dispatch:
 
 jobs:
