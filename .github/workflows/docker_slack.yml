@@ -14,7 +14,8 @@ jobs:
   publish-slack:
     runs-on: self-hosted
     steps:
-      - run: echo 'The triggering workflow failed'
+      - name: deploy
+        uses: actions/checkout@v2
       - name: Publish slack message
         uses: ./.github/action_templates/slack
         with:
