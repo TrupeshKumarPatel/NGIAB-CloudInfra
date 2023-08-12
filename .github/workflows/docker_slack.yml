@@ -5,7 +5,7 @@ on:
     paths:
       - docker/**
   workflow_run:
-    workflows: [Build and push final image]
+    workflows: [Build and push deps image]
     types:
       - completed
   workflow_dispatch:
