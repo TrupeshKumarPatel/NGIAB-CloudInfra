@@ -28,7 +28,7 @@ echo "==========================================================="
 echo "-- Now Installing External Library noah-owp-modular ..."
 echo "-----------------------------------------------------------"
 cd /ngen/extern/noah-owp-modular
-cmake -B cmake_build -S .
+# cmake -B cmake_build -S .
 cmake -DnetCDF_MOD_PATH=/usr/include/openmpi-x86_64/ -B cmake_build -S .
 cmake --build cmake_build --target surfacebmi -- -j 2
 
@@ -64,6 +64,17 @@ echo "-----------------------------------------------------------"
 cd /ngen/extern/topmodel
 cmake -B cmake_build -S .
 cmake --build cmake_build --target topmodelbmi -- -j 2
+
+echo "==========================================================="
+echo "==========================================================="
+
+echo ""
+echo "==========================================================="
+echo "-- Now Installing External Library sloth ..."
+echo "-----------------------------------------------------------"
+cd /ngen/extern/sloth
+cmake -B cmake_build -S .
+cmake --build cmake_build --target all
 
 echo "==========================================================="
 echo "==========================================================="
