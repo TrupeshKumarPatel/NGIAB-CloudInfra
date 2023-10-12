@@ -31,6 +31,7 @@ echo "-- Now Cloning GoogleTest and Pybind11 ..."
 echo "-----------------------------------------------------------"
 git submodule update --init --recursive -- test/googletest
 git submodule update --init --recursive -- extern/pybind11
+git submodule update --init --recursive --depth 1
 #cd extern/pybind11
 #git checkout v2.6.0
 echo "==========================================================="
