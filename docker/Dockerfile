@@ -1,56 +1,28 @@
-################################################################################################################
-################################################################################################################
-##### Penultimate stage for image
-FROM awiciroh/ngen as rocky_build_staging
+# syntax=docker/dockerfile:1
+FROM rockylinux:9.2
 
-ARG DATASET_DIRECTORIES
+# install app dependencies
+RUN sed -i '$amax_parallel_downloads=10' /etc/dnf/dnf.conf
+RUN dnf upgrade -y
+RUN dnf update -y
+RUN dnf install epel-release -y
+RUN dnf config-manager --set-enabled crb
+RUN dnf update --refresh -y
+RUN dnf groupinstall 'Development Tools' -y
+RUN dnf install tar git gcc-c++ gcc gcc-gfortran make cmake bzip2 python3 python3-devel python3-pip udunits2-devel -y
+RUN cp -s /usr/bin/python3 /usr/bin/python
+RUN pip3 install wheel deprecated dask pyarrow geopandas pyproj fiona pandas xarray netcdf4 joblib toolz pyyaml Cython bmipy opencv-contrib-python-headless
+RUN dnf install libstdc++ libstdc++-devel glibc glibc-devel libgfortran openmpi openmpi-devel -y
+RUN dnf --enablerepo=devel install texinfo -y
+RUN dnf install netcdf netcdf-devel netcdf-fortran netcdf-fortran-devel netcdf-openmpi netcdf-openmpi-devel netcdf-fortran-openmpi netcdf-fortran-openmpi-devel -y 
+RUN dnf install boost boost-devel -y
+RUN dnf install lapack gdal-libs gdal gdal-devel -y
 
-#RUN cd ./ngen && mkdir ${WORKDIR}/bin && cp cmake_build/ngen ${WORKDIR}/bin && cp -r data ${WORKDIR}/data \
-#    && cd $WORKDIR && rm -rf ngen boost
-
-
-# Remove the boost headers now that ngen is compiled; also update path and make sure dataset directory is there
-RUN rm -rf ${BOOST_ROOT} && echo "export PATH=${PATH}" >> /etc/profile \
-    && mkdir -p /dmod/datasets && chown root /dmod/datasets \
-    && mkdir -p /dmod/datasets/static && chown root /dmod/datasets/static \
-    && mkdir -p /dmod/shared_libs && chown root /dmod/shared_libs \
-    && mkdir -p /dmod/bin && chown root /dmod/bin 
-
-# Change permissions for entrypoint and make sure dataset volume mount parent directories exists
-# chmod +x ${WORKDIR}/entrypoint.sh \
-RUN for d in ${DATASET_DIRECTORIES}; do mkdir -p /dmod/datasets/${d}; done \
-    && for d in iso_c_fortran_bmi noah-owp-modular topmodel cfe sloth 'evapotranspiration/evapotranspiration'; do \
-        if [ -d ${WORKDIR}/ngen/extern/${d}/cmake_build ]; then \
-            cp -a ${WORKDIR}/ngen/extern/${d}/cmake_build/*.so* /dmod/shared_libs/.; \
-        fi; \
-    done \
-    && find ${WORKDIR}/ngen/extern/noah-owp-modular -type f -iname "*.TBL" -exec cp '{}' /dmod/datasets/static  \; \
-    && ( cp -a ${WORKDIR}/ngen/cmake_build_parallel/ngen /dmod/bin/ngen-parallel || true ) \
-    && ( cp -a ${WORKDIR}/ngen/cmake_build_serial/ngen /dmod/bin/ngen-serial || true ) \
-    && ( cp -a ${WORKDIR}/ngen/cmake_build/partitionGenerator /dmod/bin/partitionGenerator || true ) \
-    && pushd /dmod/bin \
-    && ( ( stat ngen-parallel && ln -s ngen-parallel ngen ) || ( stat ngen-serial && ln -s ngen-serial ngen ) ) \
-    && popd 
-
-WORKDIR ${WORKDIR}
-ENV PATH=${WORKDIR}:$PATH
-
-
-################################################################################################################
-##### Final stage for image
-FROM rockylinux:9.1-minimal
-
-########################################Copy over the NGEN artifacts############################################
-COPY --chown=root --from=rocky_build_staging /dmod/ /dmod/
-COPY --chown=root --from=rocky_build_staging /usr/ /usr/
-########################################Relink the files########################################################
-RUN echo "/dmod/shared_libs/" >> /etc/ld.so.conf.d/ngen.conf && ldconfig -v
-
-COPY   HelloNGEN.sh /ngen/HelloNGEN.sh
-RUN chown -R root /dmod /ngen /root
-RUN chmod a+x /dmod/bin/* /ngen/HelloNGEN.sh /root
-RUN rm -rf tmp var opt 
-WORKDIR /ngen
-
-ENTRYPOINT ["./HelloNGEN.sh"]
-CMD [""]
+# Copy NGen install file to DockerImage
+# ENV FC=gfortran 
+# ENV NETCDF=/usr/include
+COPY ./templates /tmp/
+RUN chmod +x /tmp/ngen/install_ngen.sh /tmp/t-route/install_t_route.sh /tmp/netcdf/install_netcdf_cxx.sh /tmp/extern/install_extern_libraries.sh
+RUN ./tmp/netcdf/install_netcdf_cxx.sh
+RUN ./tmp/t-route/install_t_route.sh
+RUN ./tmp/ngen/install_ngen.sh
