@@ -20,9 +20,5 @@ echo "-----------------------------------------------------------"
 git clone --progress --single-branch --branch master http://github.com/NOAA-OWP/t-route.git
 cd t-route
 cp /tmp/t-route/compiler.sh .
-cp /tmp/t-route/src/troute-network/setup.py src/troute-network/setup.py
-cp /tmp/t-route/src/troute-network/troute/nhd_io.py src/troute-network/troute/nhd_io.py
-cp /tmp/t-route/src/troute-routing/setup.py src/troute-routing/setup.py
 
-./compiler.sh
-
+./compiler.sh no-e
