@@ -15,9 +15,6 @@ echo "I AM AT: " $current_path
 echo "==========================================================="
 cd /tmp/netcdf
 
-echo "I AM AT: " `pwd`
-echo "==========================================================="
-
 curl -s https://api.github.com/repos/Unidata/netcdf-cxx4/releases/latest | grep "tarball_url" | cut -d '"' -f 4 | xargs curl -L -o netcdf-cxx4-latest.tar.gz ;
 mkdir netcdf-cxx4-latest
 tar -xvzf netcdf-cxx4-latest.tar.gz -C netcdf-cxx4-latest --strip 1
