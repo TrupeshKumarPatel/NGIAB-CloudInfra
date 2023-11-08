@@ -10,6 +10,17 @@ module list
 echo "==========================================================="
 echo "==========================================================="
 
+# echo ""
+# echo "==========================================================="
+# echo "-- Now Installing External Library t-route ..."
+# echo "-----------------------------------------------------------"
+# cd /ngen/extern/t-route
+# cp /tmp/t-route/compiler.sh .
+# ./compiler.sh no-e
+
+# echo "==========================================================="
+# echo "==========================================================="
+
 echo ""
 echo "==========================================================="
 echo "-- Now Installing External Library iso_c_fortran_bmi ..."
@@ -76,5 +87,18 @@ cd /ngen/extern/sloth
 cmake -B cmake_build -S .
 cmake --build cmake_build --target all
 
+echo "==========================================================="
+echo "==========================================================="
+
+echo ""
+echo "==========================================================="
+echo "-- Setting Shared Library"
+echo "-----------------------------------------------------------"
+cd /
+mkdir -p dmod/shared_libs && mkdir -p dmod/bin && mkdir -p /dmod/datasets && mkdir -p /dmod/datasets/static
+chown -R root dmod
+find /ngen/extern/ -name "*.so*" -exec ln -s "{}" /dmod/shared_libs/ \;
+
+ls -ahl /dmod/shared_libs
 echo "==========================================================="
 echo "==========================================================="

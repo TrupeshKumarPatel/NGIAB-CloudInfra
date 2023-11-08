@@ -11,7 +11,9 @@ RUN dnf update --refresh -y
 RUN dnf groupinstall 'Development Tools' -y
 RUN dnf install tar git gcc-c++ gcc gcc-gfortran make cmake bzip2 python3 python3-devel python3-pip udunits2-devel -y
 RUN cp -s /usr/bin/python3 /usr/bin/python
-RUN pip3 install wheel deprecated dask pyarrow geopandas pyproj fiona pandas xarray netcdf4 joblib toolz pyyaml Cython bmipy opencv-contrib-python-headless
+RUN dnf install sqlite sqlite-devel sqlite-libs libsqlite3x libsqlite3x-devel -y
+RUN pip3 install wheel 
+RUN pip3 install deprecated dask pyarrow geopandas pyproj fiona pandas xarray netcdf4 joblib toolz pyyaml Cython==3.0.3 bmipy opencv-contrib-python-headless
 RUN dnf install libstdc++ libstdc++-devel glibc glibc-devel libgfortran openmpi openmpi-devel -y
 RUN dnf --enablerepo=devel install texinfo -y
 RUN dnf install netcdf netcdf-devel netcdf-fortran netcdf-fortran-devel netcdf-openmpi netcdf-openmpi-devel netcdf-fortran-openmpi netcdf-fortran-openmpi-devel -y 

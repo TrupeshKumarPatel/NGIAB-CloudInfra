@@ -22,12 +22,13 @@ then
 fi
 git clone https://github.com/NOAA-OWP/ngen.git
 cd ngen
+# git checkout 33d76a194b2d395e31f9d5844811fbe0fe6e729a
 echo "==========================================================="
 echo "==========================================================="
 
 echo ""
 echo "==========================================================="
-echo "-- Now Cloning GoogleTest and Pybind11 ..."
+echo "-- Now Cloning GoogleTest, Pybind11 & External Libraries..."
 echo "-----------------------------------------------------------"
 git submodule update --init --recursive -- test/googletest
 git submodule update --init --recursive -- extern/pybind11
@@ -41,11 +42,30 @@ echo "==========================================================="
 
 echo ""
 echo "==========================================================="
-echo "-- Now Building NGen at /ngen/mpibuild ..."
+echo "-- Now Building NGen at /ngen/serialbuild ..."
 echo "-----------------------------------------------------------"
 cd /ngen
 # cmake -B /ngen/mpibuild -S . -DNGEN_WITH_MPI=ON -DNGEN_WITH_PYTHON=ON -DNGEN_WITH_ROUTING=ON -DNGEN_WITH_NETCDF=ON -DNGEN_QUIET=ON
-cmake -B $current_path/ngen/mpibuild -S . -DNGEN_WITH_MPI=ON -DNGEN_WITH_PYTHON=ON -DNGEN_WITH_ROUTING=ON -DNGEN_WITH_NETCDF=ON -DNGEN_WITH_BMI_FORTRAN=ON -DNGEN_WITH_BMI_C=ON -DNGEN_QUIET=ON -DNETCDF_CXX_INCLUDE_DIR=/usr/local/include -DNETCDF_CXX_LIBRARY=/usr/local/lib64/libnetcdf-cxx4.so # -DNETCDF_INCLUDE_DIR=/usr/include -DNETCDF_LIBRARY=/usr/lib64/libnetcdf.so
+cmake -B $current_path/ngen/serialbuild -S . -DNGEN_WITH_MPI:BOOL=OFF -DNGEN_WITH_NETCDF:BOOL=ON -DNGEN_WITH_SQLITE:BOOL=ON -DNGEN_WITH_UDUNITS:BOOL=ON -DNGEN_WITH_BMI_FORTRAN:BOOL=ON -DNGEN_WITH_BMI_C:BOOL=ON -DNGEN_WITH_PYTHON:BOOL=ON -DNGEN_WITH_TESTS:BOOL=ON -DNGEN_QUIET:BOOL=ON -DNETCDF_CXX_INCLUDE_DIR=/usr/local/include -DNETCDF_CXX_LIBRARY=/usr/local/lib64/libnetcdf-cxx4.so # -DNETCDF_INCLUDE_DIR=/usr/include -DNETCDF_LIBRARY=/usr/lib64/libnetcdf.so
+echo "==========================================================="
+echo "==========================================================="
+
+echo ""
+echo "==========================================================="
+echo "-- Now Installing Serialize NGen ..."
+echo "-----------------------------------------------------------"
+cd /ngen/serialbuild
+cmake --build . -j $(nproc) --target ngen
+echo "==========================================================="
+echo "==========================================================="
+
+echo ""
+echo "==========================================================="
+echo "-- Now Building NGen at /ngen/parallelbuild ..."
+echo "-----------------------------------------------------------"
+cd /ngen
+# cmake -B /ngen/mpibuild -S . -DNGEN_WITH_MPI=ON -DNGEN_WITH_PYTHON=ON -DNGEN_WITH_ROUTING=ON -DNGEN_WITH_NETCDF=ON -DNGEN_QUIET=ON
+cmake -B $current_path/ngen/parallelbuild -S . -DNGEN_WITH_MPI:BOOL=ON -DNGEN_WITH_NETCDF:BOOL=ON -DNGEN_WITH_SQLITE:BOOL=ON -DNGEN_WITH_UDUNITS:BOOL=ON -DNGEN_WITH_BMI_FORTRAN:BOOL=ON -DNGEN_WITH_BMI_C:BOOL=ON -DNGEN_WITH_PYTHON:BOOL=ON -DNGEN_WITH_TESTS:BOOL=ON -DNGEN_QUIET:BOOL=ON -DNETCDF_CXX_INCLUDE_DIR=/usr/local/include -DNETCDF_CXX_LIBRARY=/usr/local/lib64/libnetcdf-cxx4.so # -DNETCDF_INCLUDE_DIR=/usr/include -DNETCDF_LIBRARY=/usr/lib64/libnetcdf.so
 echo "==========================================================="
 echo "==========================================================="
 
@@ -53,7 +73,7 @@ echo ""
 echo "==========================================================="
 echo "-- Now Installing NGen ..."
 echo "-----------------------------------------------------------"
-cd /ngen/mpibuild
+cd /ngen/parallelbuild
 cmake --build . -j $(nproc) --target ngen
 echo "==========================================================="
 echo "==========================================================="
@@ -68,18 +88,12 @@ echo "==========================================================="
 
 echo ""
 echo "==========================================================="
-echo "-- Now Generating partition config (in data directory)"
-echo "-----------------------------------------------------------"
-cd /ngen/data
-/ngen/mpibuild/partitionGenerator catchment_data.geojson nexus_data.geojson partition_config.json 3 '' ''
-echo "==========================================================="
-echo "==========================================================="
-
-echo ""
-echo "==========================================================="
 echo "-- Now Creating symbolink link ..."
 echo "-----------------------------------------------------------"
-ln -s awi_simplified_realization.json realization_config.json
+ln -s /ngen/serialbuild/ngen /dmod/bin/ngen-serial
+ln -s /ngen/parallelbuild/ngen /dmod/bin/ngen-parallel
+ln -s /ngen/parallelbuild/partitionGenerator /dmod/bin/partitionGenerator
+# ln -s awi_simplified_realization.json realization_config.json
+ls -ahl /dmod/bin
 echo "==========================================================="
 echo "==========================================================="
-
