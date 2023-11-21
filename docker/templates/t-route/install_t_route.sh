@@ -17,7 +17,7 @@ echo "==========================================================="
 echo "-- Now Cloning and Installing NOAA-OWP T-Route ..."
 echo "-----------------------------------------------------------"
 export FC=gfortran NETCDF=/usr/include
-git clone --progress --single-branch --branch master https://github.com/TrupeshKumarPatel/t-route.git
+git clone --progress --single-branch --branch master https://github.com/NOAA-OWP/t-route
 cd t-route
 ./compiler.sh no-e
 
